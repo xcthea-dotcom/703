@@ -99,4 +99,4 @@ CO was generally higher in fall and winter, while ozone was higher in spring and
 
 ## AI use statement
 
-I used ChatGPT to help with the R code and writing. The data cleaning and results were checked against the CSV files.
+I used ChatGPT to help review and revise my R code and report. I also checked the results against the original data.
