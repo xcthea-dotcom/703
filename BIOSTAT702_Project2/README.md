@@ -12,5 +12,5 @@ This project cleans daily EPA air pollution data from the RDU airport monitor an
 ## How to run
 Open the `.Rproj` file in RStudio. Install `rmarkdown`, `knitr`, `dplyr`, `tidyr`, and `ggplot2` if needed. Open `Project2_Report.Rmd` and click **Knit to Word**. The code is hidden in the Word output.
 
-Author: [Your name]  
+Author: Xianying Chen  
 Date: November 22, 2026
