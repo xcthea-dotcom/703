@@ -3,9 +3,7 @@
 # ozone_units: "ppm" (default) or "ppb".
 # Returns one row per day with average pollutant concentrations.
 process_air_quality <- function(file_path, ozone_units = "ppm") {
-  if (!ozone_units %in% c("ppm", "ppb")) stop("Use ppm or ppb")
-
-  data <- read.csv(file_path, check.names = FALSE)
+  data <- read.csv(file_path)
   data <- unique(data)
   names(data) <- c("date", "co", "units_co", "pm25", "units_pm25",
                    "o3", "units_o3")
@@ -23,5 +21,5 @@ process_air_quality <- function(file_path, ozone_units = "ppm") {
               .groups = "drop")
 
   if (ozone_units == "ppb") data$o3 <- data$o3 * 1000
-  return(data)
+  data
 }
