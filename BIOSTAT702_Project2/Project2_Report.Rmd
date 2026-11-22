@@ -1,11 +1,6 @@
 ---
 title: "Air Quality at RDU Airport, 2018–2020"
-subtitle: "BIOSTAT 702 · Project 2"
-output:
-  word_document:
-    toc: false
-    fig_width: 7
-    fig_height: 3.8
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
@@ -17,7 +12,6 @@ library(ggplot2)
 library(knitr)
 source("R/clean_air_quality.R")
 
-# Process each year separately and then combine the data.
 air_2018 <- process_air_quality("data/AQ_2018.csv")
 air_2019 <- process_air_quality("data/AQ_2019.csv")
 air_2020 <- process_air_quality("data/AQ_2020.csv")
@@ -38,27 +32,27 @@ make_table <- function(data) {
 }
 ```
 
-## Data processing
+## Data cleaning
 
-I removed duplicate rows and changed negative pollutant values to zero before finding the daily means. This matters because doing the steps after averaging could change the daily results. The cleaned dataset has one row per day.
+I removed duplicate rows and changed negative values to 0 before calculating daily means. The order matters because duplicates can change the means.
 
 ## Daily concentration ranges
 
 ```{r table2018}
-kable(make_table(air_2018), caption = "Table 1. Daily concentration ranges in 2018", align = "lrr")
+kable(make_table(air_2018), caption = "Table 1. Daily concentrations in 2018", align = "lrr")
 ```
 
 ```{r table2019}
-kable(make_table(air_2019), caption = "Table 2. Daily concentration ranges in 2019", align = "lrr")
+kable(make_table(air_2019), caption = "Table 2. Daily concentrations in 2019", align = "lrr")
 ```
 
 ```{r table2020}
-kable(make_table(air_2020), caption = "Table 3. Daily concentration ranges in 2020 (January–April)", align = "lrr")
+kable(make_table(air_2020), caption = "Table 3. Daily concentrations in 2020 (Jan–Apr)", align = "lrr")
 ```
 
-## Monthly CO and ozone concentrations
+## CO and ozone by month
 
-```{r plot1, fig.width=7, fig.height=4.5, fig.cap="Figure 1. Monthly mean concentrations and 95% confidence intervals, using available daily values from 2018–2020."}
+```{r plot1, fig.width=7, fig.height=4.4, fig.cap="Figure 1. Monthly means and 95% confidence intervals for CO and ozone."}
 monthly <- air %>%
   select(month, co, o3) %>%
   pivot_longer(cols = c(co, o3), names_to = "pollutant", values_to = "value") %>%
@@ -72,44 +66,37 @@ monthly <- air %>%
          pollutant = factor(pollutant, levels = c("co", "o3"),
                             labels = c("CO (ppm)", "Ozone (ppm)")))
 
-ggplot(monthly, aes(x = month, y = avg, color = pollutant)) +
-  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
+ggplot(monthly, aes(month, avg, color = pollutant)) +
   geom_point(size = 2) +
+  geom_errorbar(aes(ymin = lower, ymax = upper), width = 0.2) +
   facet_wrap(~ pollutant, ncol = 1, scales = "free_y") +
-  scale_color_manual(values = c("CO (ppm)" = "#246B8F",
-                                "Ozone (ppm)" = "#C76A39")) +
-  labs(title = "CO and ozone by month", x = "Month",
-       y = "Monthly mean concentration", color = "Pollutant") +
-  theme_minimal(base_size = 10) +
-  theme(legend.position = "none", panel.grid.minor = element_blank())
+  labs(x = "Month", y = "Mean concentration") +
+  theme_minimal() +
+  theme(legend.position = "none")
 ```
 
-I used separate panels because CO and ozone have very different scales. This makes both patterns readable without changing the units.
+I used two panels because CO and ozone have different scales.
 
-## Monthly PM2.5 concentrations by year
+## PM2.5 by month and year
 
-```{r plot2, fig.width=7, fig.height=3.8, fig.cap="Figure 2. Monthly mean PM2.5 concentrations for each year."}
+```{r plot2, fig.width=7, fig.height=3.8, fig.cap="Figure 2. Monthly mean PM2.5 by year."}
 pm_monthly <- air %>%
   group_by(year, month) %>%
   summarise(pm25 = mean(pm25, na.rm = TRUE), .groups = "drop")
 
-ggplot(pm_monthly, aes(x = month, y = pm25, color = year, group = year)) +
-  geom_line(linewidth = 0.7) +
+ggplot(pm_monthly, aes(month, pm25, color = year, group = year)) +
+  geom_line() +
   geom_point(size = 2) +
-  scale_color_manual(values = c("2018" = "#246B8F",
-                                "2019" = "#2D8661", "2020" = "#C76A39")) +
-  labs(title = "PM2.5 by month and year", x = "Month",
-       y = "Monthly mean PM2.5 (ug/m3)", color = "Year") +
-  theme_minimal(base_size = 10) +
-  theme(panel.grid.minor = element_blank())
+  labs(x = "Month", y = "Mean PM2.5 (ug/m3)", color = "Year") +
+  theme_minimal()
 ```
 
-I used lines and points because they make it easy to compare how PM2.5 changes over the months in each year.
+I used lines to show how PM2.5 changed from month to month.
 
 ## Interpretation
 
-CO is generally higher in late fall and winter, while ozone is higher in spring and summer. The 2020 table has the largest daily PM2.5 value, but monthly PM2.5 was lower in early 2020 than in early 2018 and 2019. Since the 2020 data only include January through April, we cannot compare the rest of that year.
+CO was generally higher in fall and winter, while ozone was higher in spring and summer. PM2.5 was lower in early 2020, but the highest daily PM2.5 value was also in 2020. Since 2020 only has data through April, we cannot compare the full year.
 
 ## AI use statement
 
-I used ChatGPT to help write and check the R code and report. I checked the cleaning steps and numerical summaries against the provided CSV data.
+I used ChatGPT to help with the R code and writing. The data cleaning and results were checked against the CSV files.
